@@ -5,21 +5,22 @@ import type {
 } from "next";
 import { GroupCard, SelfGroupCard } from "../components/groups/Cards";
 
+import CreateGroupForm from "../components/groups/CreateGroupForm";
 import Head from "next/head";
 import { User } from "@prisma/client";
 import authenticateUserServerSide from "../utils/ssr/authenticateUserServerSide";
 import { trpc } from "../utils/trpc";
 import useHeadContents from "../utils/hooks/useHeadContents";
+import { useState } from "react";
 
 type GroupViewPropTypes = {
   self: User;
+  toggleView: () => void;
 };
 
-const getFirstNameFromName = (name: string) => name.split(" ")[0];
-
-const GroupView = ({ self }: GroupViewPropTypes) => {
+const GroupView = ({ self, toggleView }: GroupViewPropTypes) => {
   // TODO: Add loading spinner
-  const { data: groups } = trpc.self.getAllSelfGroups.useQuery(undefined, {
+  const { data: groups } = trpc.group.getAllSelfGroups.useQuery(undefined, {
     refetchOnWindowFocus: false,
   });
 
@@ -29,7 +30,10 @@ const GroupView = ({ self }: GroupViewPropTypes) => {
         <h3 className=" text-2xl font-semibold text-neutral-800">
           Your Groups
         </h3>
-        <button className=" font-base rounded-md bg-neutral-800 px-3 py-1 text-neutral-200">
+        <button
+          onClick={toggleView}
+          className=" font-base rounded-md bg-neutral-800 px-3 py-1 text-neutral-200"
+        >
           +
         </button>
       </div>
@@ -45,6 +49,9 @@ const HomePage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ self }) => {
   const { headTitle, headDescription } = useHeadContents();
+  const [creatingGroup, setCreatingGroup] = useState(false);
+
+  const toggleView = () => setCreatingGroup(!creatingGroup);
 
   return (
     <>
@@ -56,9 +63,14 @@ const HomePage: NextPage<
       <div className="flex h-full w-full max-w-2xl flex-col items-center justify-center py-14">
         <h1 className="text-4xl font-bold text-neutral-800">
           {/* Welcome, {getFirstNameFromName(self.name)} */}
-          Welcome, {self.name}
+          {/* Welcome, {self.name} */}
+          Welcome, Test User
         </h1>
-        <GroupView self={self} />
+        {creatingGroup ? (
+          <CreateGroupForm toggleView={toggleView} />
+        ) : (
+          <GroupView toggleView={toggleView} self={self} />
+        )}
       </div>
     </>
   );

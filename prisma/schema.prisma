@@ -53,6 +53,7 @@ model User {
     memberships      Membership[]
     picks            Pick[]
     eventSubmissions EventSubmission[]
+    Group            Group[]
 }
 
 model VerificationToken {
@@ -74,10 +75,13 @@ model Membership {
 
 model Group {
     id          String       @id @default(cuid())
+    ownerId     String
     title       String
+    slug        String       @unique
     num_members Int          @default(1)
-    created_at  DateTime
+    created_at  DateTime     @default(now())
     Membership  Membership[]
+    Owner       User         @relation(fields: [ownerId], references: [id])
 }
 
 model Pick {

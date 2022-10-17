@@ -1,7 +1,6 @@
-import { slugify, unslugify } from "../slugify";
-
 import { GetServerSidePropsContext } from "next";
 import { getServerAuthSession } from "../../server/common/get-server-auth-session";
+import { slugify } from "../slugify";
 
 // TODO: for future use, we should make this more extensible for
 // actual SSR uses. Currently, we rely on this to return all of our
