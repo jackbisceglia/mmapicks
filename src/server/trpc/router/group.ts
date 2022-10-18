@@ -23,6 +23,9 @@ export const groupRouter = router({
     // TODO: flattening array by hand for now- need to update this to be handled in the prisma query itself.
     return groups.map((group) => group.Group);
   }),
+  getGroupBySlug: publicProcedure.query(async () => {
+    return null;
+  }),
   createNewGroup: protectedProcedure
     .input(
       z.object({

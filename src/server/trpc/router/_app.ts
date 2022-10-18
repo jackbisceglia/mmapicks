@@ -1,6 +1,6 @@
 import { authRouter } from "./auth";
+import { eventRouter } from "./event";
 import { groupRouter } from "./group";
-// src/server/trpc/router/_app.ts
 import { router } from "../trpc";
 import { selfRouter } from "./self";
 
@@ -8,6 +8,7 @@ export const appRouter = router({
   self: selfRouter,
   auth: authRouter,
   group: groupRouter,
+  event: eventRouter,
 });
 
 // export type definition of API

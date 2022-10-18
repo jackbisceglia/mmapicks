@@ -47,7 +47,6 @@ const CreateGroupForm = ({ toggleView }: CreateGroupFormPropTypes) => {
 
   const handleFormSubmission = async (e: FormEvent<HTMLFormElement>) => {
     const submit = async () => {
-      console.log("created");
       await groupMutation.mutateAsync(formState, {
         onSuccess: (group) => {
           router.push(`/groups/${group.slug}`);
@@ -62,8 +61,6 @@ const CreateGroupForm = ({ toggleView }: CreateGroupFormPropTypes) => {
     await submit();
     reset();
   };
-
-  console.log(formState);
 
   return (
     <form

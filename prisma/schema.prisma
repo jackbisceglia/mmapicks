@@ -74,14 +74,14 @@ model Membership {
 }
 
 model Group {
-    id          String       @id @default(cuid())
-    ownerId     String
-    title       String
-    slug        String       @unique
-    num_members Int          @default(1)
-    created_at  DateTime     @default(now())
-    Membership  Membership[]
-    Owner       User         @relation(fields: [ownerId], references: [id])
+    id         String       @id @default(cuid())
+    ownerId    String
+    title      String
+    slug       String       @unique
+    numMembers Int          @default(1)
+    createdAt  DateTime     @default(now())
+    Membership Membership[]
+    Owner      User         @relation(fields: [ownerId], references: [id])
 }
 
 model Pick {
@@ -128,8 +128,11 @@ model EventSubmission {
 model Event {
     id        String   @id @default(cuid())
     title     String
+    mainEvent String
     date      DateTime
     promotion String
+    venue     String
+    location  String
 
     fights          Fight[]
     EventSubmission EventSubmission[]

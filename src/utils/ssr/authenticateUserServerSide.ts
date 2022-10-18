@@ -1,13 +1,15 @@
 import { GetServerSidePropsContext } from "next";
+import { Session } from "next-auth";
 import { getServerAuthSession } from "../../server/common/get-server-auth-session";
 
-// TODO: for future use, we should make this more extensible for
-// actual SSR uses. Currently, we rely on this to return all of our
-// SSR props, but in the event that we want other SSR props, we have to handle this as well.
-
-// For now, we just return the user object
-
-const authenticateUserServerSide = async (ctx: GetServerSidePropsContext) => {
+// Checks auth status. If user is not authenticated, redirects to login page
+// Optional getPropsCallback, which is invoked and can return extra props to be passed to the page
+const authenticateUserServerSide = async (
+  ctx: GetServerSidePropsContext,
+  getPropsCallback: (
+    session: Session
+  ) => Promise<{ props: Record<string, unknown> }> = async () => ({ props: {} })
+) => {
   const auth = await getServerAuthSession(ctx);
   if (!auth?.user) {
     return {
@@ -17,9 +19,13 @@ const authenticateUserServerSide = async (ctx: GetServerSidePropsContext) => {
       },
     };
   }
+
+  const { props: nonSessionProps } = await getPropsCallback(auth);
+
   return {
     props: {
       self: auth.user,
+      ...nonSessionProps,
     },
   };
 };

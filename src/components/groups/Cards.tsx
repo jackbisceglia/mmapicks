@@ -1,7 +1,9 @@
-import { Group, User } from "@prisma/client";
+import { Event, Group, User } from "@prisma/client";
 
+import Divider from "../misc/Divider";
 import Link from "next/link";
 import { slugify } from "../../utils/slugify";
+import { useRouter } from "next/router";
 
 // TODO: needs to exist on group object or user object or member object
 const xp_count = 100;
@@ -21,23 +23,55 @@ type PickCardPropTypes = {
   content: {
     title: string;
     num_events: number;
-    num_members: number;
+    numMembers: number;
     xp_count: number;
   };
   cardHref: string;
 };
 
+type EventCardPropTypes = {
+  event: Event;
+};
+
+const formatDate = (d: Date) => new Intl.DateTimeFormat("en-US").format(d);
+
+const EventCard = ({ event }: EventCardPropTypes) => {
+  const { asPath } = useRouter();
+  return (
+    <Link href={`/${asPath}/events/${event.id}`}>
+      <div className="mb-6 flex w-full cursor-pointer items-center justify-center gap-2 rounded-md bg-neutral-400 py-4 px-4 transition-all duration-200 hover:pl-7">
+        {/* LEFT SIDE */}
+        <div className="flex w-max flex-grow flex-col justify-start">
+          <h3 className="pb-0 text-2xl font-semibold text-neutral-800">
+            {event.title}
+          </h3>
+          <p>{formatDate(event.date)}</p>
+          <p className=" py-1 text-lg font-medium text-red-700">
+            {event.mainEvent}
+          </p>
+          <p className="py-0 text-sm">{event.location}</p>
+          <p className="py-0 text-sm">{event.venue}</p>
+        </div>
+        {/* RIGHT SIDE */}
+        <div className="flex h-max w-fit justify-start">
+          {/* <div className=" w-auto rounded-md bg-blue-700 px-1 py-1">test</div> */}
+        </div>
+      </div>
+    </Link>
+  );
+};
+
 const PickCard = ({ content, cardHref }: PickCardPropTypes) => {
   return (
     <Link href={cardHref}>
-      <div className="mb-6 flex w-full cursor-pointer items-center justify-center rounded-md bg-neutral-400 py-3 px-4 transition-all duration-100 hover:bg-neutral-500">
+      <div className="mb-6 flex w-full cursor-pointer items-center justify-center rounded-md bg-neutral-400 py-4 px-4 transition-all duration-200 hover:pl-7">
         {/* LEFT SIDE */}
         <div className="flex w-max flex-grow flex-col justify-start">
           <h3 className="pb-1 text-2xl font-semibold text-neutral-800">
             {content.title}
           </h3>
           <p>{content.num_events} Events Picked</p>
-          <p>{content.num_members} Members</p>
+          <p>{content.numMembers} Members</p>
         </div>
         {/* RIGHT SIDE */}
         <div className="flex h-max w-fit justify-start">
@@ -59,15 +93,14 @@ const GroupCard = ({ group }: GroupCardPropTypes) => {
 };
 
 const SelfGroupCard = ({ self }: SelfGroupCardPropTypes) => {
-  console.log(self);
   const cardHref = `/users/${self.username}`;
   const selfGroupCardContent = {
     title: "Me",
     num_events: num_events,
-    num_members: 1,
+    numMembers: 1,
     xp_count: xp_count,
   };
   return <PickCard content={selfGroupCardContent} cardHref={cardHref} />;
 };
 
-export { GroupCard, SelfGroupCard };
+export { GroupCard, SelfGroupCard, EventCard };

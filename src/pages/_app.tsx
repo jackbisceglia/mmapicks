@@ -1,7 +1,7 @@
 // src/pages/_app.tsx
 import "../styles/globals.css";
 
-import AppLayout from "../layouts/AppLayout";
+import AppLayout from "../components/layouts/AppLayout";
 import type { AppType } from "next/app";
 import type { Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";

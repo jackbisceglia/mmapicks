@@ -7,8 +7,11 @@ async function main() {
     await prisma.event.create({
       data: {
         title: event?.title ?? "",
+        mainEvent: event?.mainEvent ?? "",
         date: event?.date ?? new Date(),
         promotion: event?.promotion ?? "",
+        venue: event?.venue ?? "",
+        location: event?.location ?? "",
         fights: {
           create: [
             ...event.fights.map((fight) => ({

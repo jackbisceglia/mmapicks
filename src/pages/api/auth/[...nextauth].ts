@@ -22,7 +22,6 @@ export const authOptions: NextAuthOptions = {
         where: { id: user.id },
         data: { username: generatedUsername },
       });
-      console.log("user created: ", updatedUser, "\n");
     },
   },
   // Include user.id on session

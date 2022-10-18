@@ -1,8 +1,26 @@
-import { protectedProcedure, publicProcedure, router } from "../trpc";
+import { protectedProcedure, router } from "../trpc";
 
-import { z } from "zod";
+export const selfRouter = router({
+  getSelf: protectedProcedure.query(async ({ ctx }) => {
+    const id = ctx.session?.user?.id;
 
-export const selfRouter = router({});
+    if (!id) {
+      throw new Error("Not logged in");
+    }
+
+    const user = await ctx.prisma.user.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    return user;
+  }),
+});
 
 // export const mainRouter = router({
 //   hello: publicProcedure
