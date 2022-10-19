@@ -5,4 +5,5 @@ module.exports = {
     extend: {},
   },
   plugins: [],
+  safelist: ["hidden", "flex", "opacity-0", "opacity-100"],
 };

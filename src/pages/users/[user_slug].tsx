@@ -20,14 +20,6 @@ const UserPage: NextPage<
 > = ({ self, authorizedAsSelf }) => {
   const { headTitle, headDescription } = useHeadContents();
 
-  const handlePicksPageAccess = () => {
-    if (authorizedAsSelf) {
-      return <SelfPicksPage />;
-    } else {
-      return <PublicUserPicksPage />;
-    }
-  };
-
   return (
     <>
       <Head>
@@ -35,7 +27,7 @@ const UserPage: NextPage<
         <meta name="description" content={headDescription} />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      {handlePicksPageAccess()}
+      {authorizedAsSelf ? <SelfPicksPage /> : <PublicUserPicksPage />}
     </>
   );
 };

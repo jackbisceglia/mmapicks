@@ -4,23 +4,47 @@ import type {
   NextPage,
 } from "next";
 import { GroupCard, SelfGroupCard } from "../components/groups/Cards";
+import { useEffect, useState } from "react";
 
 import CreateGroupForm from "../components/groups/CreateGroupForm";
 import Head from "next/head";
 import JacksEpicImage from "../components/misc/JacksEpicImage";
+import Link from "next/link";
 import PageTitle from "../components/typography/PageTitle";
 import Spinner from "../components/misc/Spinner";
 import SuspendContent from "../components/misc/SuspendContent";
 import { User } from "@prisma/client";
 import authenticateUserServerSide from "../utils/ssr/authenticateUserServerSide";
+import { router } from "../server/trpc/trpc";
 import { trpc } from "../utils/trpc";
 import useHeadContents from "../utils/hooks/useHeadContents";
+import { useRouter } from "next/router";
 import useSelfQuery from "../utils/hooks/useSelfQuery";
-import { useState } from "react";
 
 type GroupViewPropTypes = {
   self: User;
   toggleView: () => void;
+};
+
+const JoinGroupButton = () => {
+  return (
+    <Link href="/join">
+      <button className="font-base mx-1 w-fit rounded-md bg-neutral-800 px-3 py-1 text-neutral-200 transition-all duration-200 ease-in-out hover:bg-neutral-700 disabled:cursor-not-allowed disabled:bg-neutral-400">
+        Join Group
+      </button>
+    </Link>
+  );
+};
+
+const CreateGroupButton = ({ toggle }: { toggle: () => void }) => {
+  return (
+    <button
+      onClick={toggle}
+      className="font-base mx-1 w-fit rounded-md bg-neutral-800 px-3 py-1 text-neutral-200 transition-all duration-200 ease-in-out hover:bg-neutral-700 disabled:cursor-not-allowed disabled:bg-neutral-400"
+    >
+      Create Group
+    </button>
+  );
 };
 
 const GroupView = ({ self, toggleView }: GroupViewPropTypes) => {
@@ -47,16 +71,14 @@ const GroupView = ({ self, toggleView }: GroupViewPropTypes) => {
         )}
         <PageTitle className="pl-4">@{self.username}</PageTitle>
       </div>
-      <div className="flex w-full items-start justify-between py-6">
+      <div className="flex w-full flex-col items-start justify-between py-6 sm:flex-row">
         <h3 className=" text-2xl font-semibold text-neutral-800">
           Your Groups
         </h3>
-        <button
-          onClick={toggleView}
-          className=" font-base rounded-md bg-neutral-800 px-3 py-1 text-neutral-200"
-        >
-          +
-        </button>
+        <div className="pt-2 sm:p-0">
+          <JoinGroupButton />
+          <CreateGroupButton toggle={toggleView} />
+        </div>
       </div>
       <SelfGroupCard self={self} />
       {isLoading ? <Spinner /> : GroupList}
@@ -69,7 +91,6 @@ const HomePage: NextPage<
 > = ({}) => {
   const { headTitle, headDescription } = useHeadContents();
   const [creatingGroup, setCreatingGroup] = useState(false);
-
   const toggleView = () => setCreatingGroup(!creatingGroup);
 
   const { self, isLoading } = useSelfQuery();
@@ -81,10 +102,10 @@ const HomePage: NextPage<
         <meta name="description" content={headDescription} />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className="flex h-full w-full max-w-2xl flex-col items-center justify-center py-14">
+      <div className="flex h-full w-full max-w-2xl flex-col items-center justify-center pt-14 pb-7">
         <SuspendContent isLoading={isLoading}>
           {creatingGroup ? (
-            <CreateGroupForm toggleView={toggleView} />
+            <CreateGroupForm show={creatingGroup} toggleView={toggleView} />
           ) : (
             self && <GroupView self={self} toggleView={toggleView} />
           )}

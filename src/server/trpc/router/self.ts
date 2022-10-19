@@ -5,7 +5,7 @@ export const selfRouter = router({
     const id = ctx.session?.user?.id;
 
     if (!id) {
-      throw new Error("Not logged in");
+      throw new Error("No Identifier");
     }
 
     const user = await ctx.prisma.user.findUnique({
@@ -20,17 +20,21 @@ export const selfRouter = router({
 
     return user;
   }),
-});
+  getInvites: protectedProcedure.query(async ({ ctx }) => {
+    const id = ctx.session?.user?.id;
 
-// export const mainRouter = router({
-//   hello: publicProcedure
-//     .input(z.object({ text: z.string().nullish() }).nullish())
-//     .query(({ input }) => {
-//       return {
-//         greeting: `Hello ${input?.text ?? "world"}`,
-//       };
-//     }),
-//   getAll: publicProcedure.query(({ ctx }) => {
-//     return ctx.prisma.example.findMany();
-//   }),
-// });
+    if (!id) {
+      throw new Error("No Identifier");
+    }
+
+    const invites = await ctx.prisma.invite.findMany({
+      where: {
+        userId: id,
+      },
+      include: {
+        Group: {},
+      },
+    });
+    return invites;
+  }),
+});

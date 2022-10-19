@@ -54,6 +54,7 @@ model User {
     picks            Pick[]
     eventSubmissions EventSubmission[]
     Group            Group[]
+    Invite           Invite[]
 }
 
 model VerificationToken {
@@ -82,6 +83,7 @@ model Group {
     createdAt  DateTime     @default(now())
     Membership Membership[]
     Owner      User         @relation(fields: [ownerId], references: [id])
+    Invite     Invite[]
 }
 
 model Pick {
@@ -136,4 +138,13 @@ model Event {
 
     fights          Fight[]
     EventSubmission EventSubmission[]
+}
+
+model Invite {
+    id      String @id @default(cuid())
+    userId  String
+    groupId String
+
+    User  User  @relation(fields: [userId], references: [id])
+    Group Group @relation(fields: [groupId], references: [id])
 }

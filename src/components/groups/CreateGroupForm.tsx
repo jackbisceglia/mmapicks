@@ -1,10 +1,11 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 
 import { trpc } from "../../utils/trpc";
 import { useRouter } from "next/router";
 
 type CreateGroupFormPropTypes = {
   toggleView: () => void;
+  show: boolean;
 };
 
 type GroupFormInputType = {
@@ -22,8 +23,37 @@ const defaultForm: GroupFormInputType = {
   maxMembersAllowed: 10,
 };
 
-const CreateGroupForm = ({ toggleView }: CreateGroupFormPropTypes) => {
+type toggleViewStyleProps = {
+  display: string;
+  opacity: number;
+};
+
+const defaultHiddenState = {
+  display: "none",
+  opacity: 0,
+};
+
+const defaultVisibleState = {
+  display: "flex",
+  opacity: 100,
+};
+
+const CreateGroupForm = ({ toggleView, show }: CreateGroupFormPropTypes) => {
   const groupMutation = trpc.group.createNewGroup.useMutation();
+  const [visibility, setVisibility] = useState<toggleViewStyleProps>({
+    ...defaultHiddenState,
+  });
+  useEffect(() => {
+    console.log("effect run");
+    setTimeout(() => {
+      setVisibility({ ...defaultVisibleState });
+    }, 1);
+
+    return () => {
+      console.log("effect cleanup run");
+      setVisibility({ ...defaultHiddenState });
+    };
+  }, []);
 
   const [formState, setFormState] = useState<GroupFormInputType>({
     ...defaultForm,
@@ -47,6 +77,9 @@ const CreateGroupForm = ({ toggleView }: CreateGroupFormPropTypes) => {
 
   const handleFormSubmission = async (e: FormEvent<HTMLFormElement>) => {
     const submit = async () => {
+      if (formState.title.length < 3) {
+        return;
+      }
       await groupMutation.mutateAsync(formState, {
         onSuccess: (group) => {
           router.push(`/groups/${group.slug}`);
@@ -65,7 +98,7 @@ const CreateGroupForm = ({ toggleView }: CreateGroupFormPropTypes) => {
   return (
     <form
       onSubmit={handleFormSubmission}
-      className="sm:3/5 flex w-4/5 max-w-md flex-col items-center justify-center py-10 text-xl"
+      className={` sm:3/5 ${visibility.display} opacity-${visibility.opacity} w-4/5 max-w-md flex-col items-center justify-center py-10 text-xl transition-all duration-150 ease-in-out`}
     >
       <div className="flex w-full flex-col py-4">
         <label className="pb-1">Group Name</label>
@@ -100,11 +133,11 @@ const CreateGroupForm = ({ toggleView }: CreateGroupFormPropTypes) => {
       <div className="flex w-full justify-evenly py-4">
         <button
           onClick={toggleView}
-          className=" font-base mr-2 flex-grow rounded-md bg-neutral-800 px-3 py-1 text-neutral-200"
+          className=" font-base mr-2 flex-grow rounded-md bg-neutral-800 px-3 py-1 text-neutral-200 transition-all duration-200 ease-in-out hover:bg-neutral-700 disabled:cursor-not-allowed disabled:bg-neutral-400"
         >
           Cancel
         </button>
-        <button className="font-base ml-2 flex-grow rounded-md bg-blue-600 px-3 py-1 text-neutral-200">
+        <button className="font-base ml-2 flex-grow rounded-md bg-blue-600 px-3 py-1 text-neutral-200 transition-all duration-200 ease-in-out hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-neutral-400">
           Create
         </button>
       </div>

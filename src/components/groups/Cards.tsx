@@ -33,13 +33,18 @@ type EventCardPropTypes = {
   event: Event;
 };
 
+type MemberCardPropTypes = {
+  user: User;
+  rank: number;
+};
+
 const formatDate = (d: Date) => new Intl.DateTimeFormat("en-US").format(d);
 
 const EventCard = ({ event }: EventCardPropTypes) => {
   const { asPath } = useRouter();
   return (
-    <Link href={`/${asPath}/events/${event.id}`}>
-      <div className="mb-6 flex w-full cursor-pointer items-center justify-center gap-2 rounded-md bg-neutral-400 py-4 px-4 transition-all duration-200 hover:pl-7">
+    <Link href={`${asPath}/events/${event.id}`}>
+      <div className="mb-6 flex w-full cursor-pointer items-center justify-center gap-2 rounded-md  border-neutral-400 bg-neutral-300 py-4 px-4 transition-all duration-200 hover:pl-7">
         {/* LEFT SIDE */}
         <div className="flex w-max flex-grow flex-col justify-start">
           <h3 className="pb-0 text-2xl font-semibold text-neutral-800">
@@ -61,10 +66,26 @@ const EventCard = ({ event }: EventCardPropTypes) => {
   );
 };
 
+const MemberCard = ({ user, rank }: MemberCardPropTypes) => {
+  return (
+    <Link href={`/users/${user.username}`}>
+      <div className=" mb-2 flex w-full cursor-pointer items-center justify-center gap-2  rounded-md border-neutral-400 bg-neutral-300 py-2 px-4 underline-offset-8 transition-all duration-200 hover:pl-5 hover:underline">
+        {/* LEFT SIDE */}
+        <div className="flex w-max flex-grow flex-col justify-start">
+          <h3 className=" break-all pb-0 text-lg font-normal text-neutral-800">
+            <span>{rank}.</span> @{user.username}
+          </h3>
+        </div>
+        {/* RIGHT SIDE */}
+      </div>
+    </Link>
+  );
+};
+
 const PickCard = ({ content, cardHref }: PickCardPropTypes) => {
   return (
     <Link href={cardHref}>
-      <div className="mb-6 flex w-full cursor-pointer items-center justify-center rounded-md bg-neutral-400 py-4 px-4 transition-all duration-200 hover:pl-7">
+      <div className="mb-6 flex w-full cursor-pointer items-center justify-center  rounded-md border-2 border-neutral-400 bg-neutral-300 py-4 px-4 transition-all duration-200 hover:pl-7">
         {/* LEFT SIDE */}
         <div className="flex w-max flex-grow flex-col justify-start">
           <h3 className="pb-1 text-2xl font-semibold text-neutral-800">
@@ -103,4 +124,4 @@ const SelfGroupCard = ({ self }: SelfGroupCardPropTypes) => {
   return <PickCard content={selfGroupCardContent} cardHref={cardHref} />;
 };
 
-export { GroupCard, SelfGroupCard, EventCard };
+export { GroupCard, SelfGroupCard, EventCard, MemberCard };
