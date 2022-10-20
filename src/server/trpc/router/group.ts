@@ -3,6 +3,11 @@ import { protectedProcedure, publicProcedure, router } from "../trpc";
 import { slugify } from "../../../utils/slugify";
 import { z } from "zod";
 
+// TODO:  extract member count logic to here
+// const updateMemberCount = async (ctx) => {
+//
+// }
+
 export const groupRouter = router({
   getAllSelfGroups: protectedProcedure.query(async ({ ctx }) => {
     const id = ctx.session?.user?.id;
@@ -110,7 +115,6 @@ export const groupRouter = router({
       }
 
       // update the member count on the group
-
       const groupResource = await ctx.prisma.group.update({
         where: {
           id: groupId,
@@ -174,6 +178,51 @@ export const groupRouter = router({
       } catch (error) {
         return [];
       } finally {
+      }
+    }),
+  leaveGroup: protectedProcedure
+    .input(
+      z.object({
+        groupId: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { groupId } = input;
+      const id = ctx.session.user.id;
+
+      try {
+        const deleteResource = await ctx.prisma.membership.delete({
+          where: {
+            userId_groupId: {
+              userId: id,
+              groupId: groupId,
+            },
+          },
+        });
+
+        if (!deleteResource) {
+          return [];
+        }
+
+        // update the member count on the group
+        const groupResource = await ctx.prisma.group.update({
+          where: {
+            id: groupId,
+          },
+          data: {
+            numMembers: {
+              decrement: 1,
+            },
+          },
+        });
+
+        if (!groupResource) {
+          return;
+        }
+
+        return deleteResource;
+      } catch (error) {
+        return [];
       }
     }),
 });

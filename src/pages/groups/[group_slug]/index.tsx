@@ -7,7 +7,7 @@ import {
 import { Group, Membership, User } from "@prisma/client";
 
 import Head from "next/head";
-import InviteToGroupButton from "../../../components/groups/InviteToGroupButton";
+import { InviteToGroupButton } from "../../../components/groups/InviteToGroupButton";
 import NotAuthorizedView from "../../../components/misc/NotAuthorized";
 import PageTitle from "../../../components/typography/PageTitle";
 import SuspendContent from "../../../components/misc/SuspendContent";

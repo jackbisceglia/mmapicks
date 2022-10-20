@@ -1,8 +1,7 @@
 import { Event, Group, User } from "@prisma/client";
+import { InviteToGroupButton, LeaveGroupButton } from "./InviteToGroupButton";
 
-import InviteToGroupButton from "./InviteToGroupButton";
 import Link from "next/link";
-import { slugify } from "../../utils/slugify";
 import { useRouter } from "next/router";
 
 // TODO: needs to exist on group object or user object or member object
@@ -110,14 +109,20 @@ const PickCard = ({ content, cardHref, PropsButton }: PickCardPropTypes) => {
 const GroupCard = ({ group, isOwner }: GroupCardPropTypes) => {
   const cardHref = `/groups/${group.slug}`;
 
-  const HomePageInviteToGroupButton = () => (
-    <InviteToGroupButton
-      isOwnerOfGroup={isOwner}
-      disabled={false}
-      groupSlug={group.slug}
-      // className="mb-2"
-    />
-  );
+  const HomePageInviteToGroupButton = () => {
+    if (isOwner) {
+      return (
+        <InviteToGroupButton
+          isOwnerOfGroup={isOwner}
+          disabled={false}
+          groupSlug={group.slug}
+          // className="mb-2"
+        />
+      );
+    } else {
+      return <LeaveGroupButton groupId={group.id} />;
+    }
+  };
 
   return (
     <PickCard
