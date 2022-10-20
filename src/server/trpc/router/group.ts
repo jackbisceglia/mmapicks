@@ -18,14 +18,26 @@ export const groupRouter = router({
       select: {
         Group: true,
       },
+      orderBy: {
+        Group: {
+          createdAt: "desc",
+        },
+      },
     });
 
     // TODO: flattening array by hand for now- need to update this to be handled in the prisma query itself.
     return groups.map((group) => group.Group);
   }),
-  getGroupBySlug: publicProcedure.query(async () => {
-    return null;
-  }),
+  getGroupBySlug: publicProcedure
+    .input(z.string())
+    .query(async ({ ctx, input }) => {
+      console.log(input);
+      return await ctx.prisma.group.findUnique({
+        where: {
+          slug: input,
+        },
+      });
+    }),
   createNewGroup: protectedProcedure
     .input(
       z.object({
@@ -64,25 +76,20 @@ export const groupRouter = router({
   acceptUserInvite: protectedProcedure
     .input(
       z.object({
-        inviteId: z.string(),
         groupId: z.string(),
       })
     )
     .mutation(async ({ ctx, input }) => {
       const id = ctx.session.user.id;
-      const { inviteId, groupId } = input;
+      const { groupId } = input;
 
       // validate that the user has been invited to the group
-      const inviteResource = await ctx.prisma.invite.findMany({
+      const inviteResource = await ctx.prisma.invite.findUnique({
         where: {
-          AND: [
-            {
-              id: inviteId,
-            },
-            {
-              userId: id,
-            },
-          ],
+          userId_groupId: {
+            userId: id,
+            groupId: groupId,
+          },
         },
       });
 
@@ -122,7 +129,10 @@ export const groupRouter = router({
       // delete invitation
       const deleteInviteResource = await ctx.prisma.invite.delete({
         where: {
-          id: inviteId,
+          userId_groupId: {
+            userId: id,
+            groupId: groupId,
+          },
         },
       });
 
@@ -131,5 +141,39 @@ export const groupRouter = router({
       }
 
       return groupResource;
+    }),
+  createGroupInvite: protectedProcedure
+    .input(
+      z.object({
+        groupId: z.string(),
+        userIds: z.array(z.string()),
+      })
+    )
+    .mutation(async ({ ctx, input: { groupId, userIds } }) => {
+      const isOwner = await ctx.prisma.group.findFirst({
+        where: {
+          id: groupId,
+        },
+      });
+
+      if (!isOwner) {
+        throw new Error("Not authorized to create invite");
+      }
+      const createInvite = async (id: string) => {
+        return await ctx.prisma.invite.create({
+          data: {
+            userId: id,
+            groupId: groupId,
+          },
+        });
+      };
+      // create many for postgres
+      try {
+        const inviteResources = await Promise.all(userIds.map(createInvite));
+        return inviteResources;
+      } catch (error) {
+        return [];
+      } finally {
+      }
     }),
 });

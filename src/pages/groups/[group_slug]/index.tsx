@@ -7,32 +7,13 @@ import {
 import { Group, Membership, User } from "@prisma/client";
 
 import Head from "next/head";
+import InviteToGroupButton from "../../../components/groups/InviteToGroupButton";
 import NotAuthorizedView from "../../../components/misc/NotAuthorized";
 import PageTitle from "../../../components/typography/PageTitle";
 import SuspendContent from "../../../components/misc/SuspendContent";
 import authenticateUserServerSide from "../../../utils/ssr/authenticateUserServerSide";
 import { trpc } from "../../../utils/trpc";
 import useHeadContents from "../../../utils/hooks/useHeadContents";
-
-const InviteToGroupButton = ({
-  isOwnerOfGroup,
-  disabled,
-}: {
-  isOwnerOfGroup: boolean;
-  disabled: boolean;
-}) => {
-  if (!isOwnerOfGroup) {
-    return null;
-  }
-  return (
-    <button
-      disabled={disabled}
-      className="font-base my-3 rounded-md bg-neutral-800 px-3  py-1 text-xs text-neutral-200 transition-all duration-200 ease-in-out hover:bg-neutral-700 disabled:cursor-not-allowed disabled:bg-neutral-400"
-    >
-      Invite Friends
-    </button>
-  );
-};
 
 const GroupPageContent = ({
   group,
@@ -62,17 +43,21 @@ const GroupPageContent = ({
       <div className="flex h-full w-full flex-col items-center justify-center pt-14 leading-none">
         <PageTitle>{group.title}</PageTitle>
         <InviteToGroupButton
+          className="mt-3"
+          groupSlug={group.slug}
           isOwnerOfGroup={isOwnerOfGroup}
           disabled={groupAtCapacity}
         />
         <div className="flex h-full w-full max-w-2xl flex-col-reverse items-center justify-center gap-0 py-2 leading-none sm:flex-row sm:items-start sm:gap-4 ">
           {/* left */}
-          <div className="flex h-full w-full flex-col items-start justify-center leading-none sm:w-44">
-            <h3 className=" font-regular py-4 text-xl text-neutral-800 sm:text-2xl">
-              Rankings
-            </h3>
-            {MemberList}
-          </div>
+          {group.numMembers > 1 && (
+            <div className="flex h-full w-full flex-col items-start justify-center leading-none sm:w-44">
+              <h3 className=" font-regular py-4 text-xl text-neutral-800 sm:text-2xl">
+                Rankings
+              </h3>
+              {MemberList}
+            </div>
+          )}
           {/* right */}
           <div className="flex h-full w-full flex-grow flex-col items-start justify-center leading-none sm:w-min">
             <h3 className=" font-regular py-4 text-xl text-neutral-800 sm:text-2xl">
@@ -101,7 +86,7 @@ const GroupPage: NextPage<
       {isMemberOfGroup ? (
         <GroupPageContent group={group} isOwnerOfGroup={isOwnerOfGroup} />
       ) : (
-        <NotAuthorizedView message="You are not a member of this group" />
+        <NotAuthorizedView message="You are not a member of this group." />
       )}
     </>
   );

@@ -56,7 +56,11 @@ const GroupView = ({ self, toggleView }: GroupViewPropTypes) => {
   );
 
   const GroupList = groups?.map((group) => (
-    <GroupCard key={group.id} group={group} />
+    <GroupCard
+      key={group.id}
+      group={group}
+      isOwner={group.ownerId === self.id}
+    />
   ));
 
   return (

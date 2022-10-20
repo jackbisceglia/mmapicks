@@ -36,7 +36,7 @@ const JoinGroupCard = ({
       </div>
 
       <button
-        onClick={() => joinGroupHandler(invite.id, invite.groupId)}
+        onClick={() => joinGroupHandler(invite.userId, invite.groupId)}
         className="font-base h-min rounded-md bg-neutral-800 px-4 py-1 text-neutral-200"
       >
         Join
@@ -65,13 +65,16 @@ const MyInvitesColumn = () => {
   const { data: invites, isLoading } = trpc.self.getInvites.useQuery();
   const joinGroupMutation = trpc.group.acceptUserInvite.useMutation();
   const router = useRouter();
-
+  console.log(invites);
   const handleAcceptInvite = async (inviteId: string, groupId: string) => {
     joinGroupMutation.mutateAsync(
-      { inviteId, groupId },
+      { groupId },
       {
         onSuccess: (group) => {
-          router.push(`${router.basePath}/groups/${group.slug}`, {});
+          console.log(group);
+          // console.log(`/groups/${group.slug}`);
+          router.replace(`/groups/${group.slug}`, {});
+          // router.
         },
       }
     );
@@ -80,7 +83,7 @@ const MyInvitesColumn = () => {
   const InviteList = invites?.map((invite) => (
     <JoinGroupCard
       joinGroupHandler={handleAcceptInvite}
-      key={invite.id}
+      key={invite.groupId + invite.userId}
       invite={invite}
     />
   ));
@@ -96,7 +99,7 @@ const PublicGroupsColumn = () => {
   return (
     <JoinGroupColumn title="Public Groups">
       <h1>No Public Groups Yet</h1>
-    </JoinGroupColumn>
+  </JoinGroupColumn>
   );
 };
 

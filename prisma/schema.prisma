@@ -141,10 +141,10 @@ model Event {
 }
 
 model Invite {
-    id      String @id @default(cuid())
     userId  String
     groupId String
+    User    User   @relation(fields: [userId], references: [id])
+    Group   Group  @relation(fields: [groupId], references: [id])
 
-    User  User  @relation(fields: [userId], references: [id])
-    Group Group @relation(fields: [groupId], references: [id])
+    @@id([userId, groupId])
 }

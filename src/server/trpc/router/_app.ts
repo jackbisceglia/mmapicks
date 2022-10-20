@@ -1,12 +1,12 @@
-import { authRouter } from "./auth";
 import { eventRouter } from "./event";
 import { groupRouter } from "./group";
 import { router } from "../trpc";
 import { selfRouter } from "./self";
+import { userRouter } from "./user";
 
 export const appRouter = router({
   self: selfRouter,
-  auth: authRouter,
+  user: userRouter,
   group: groupRouter,
   event: eventRouter,
 });

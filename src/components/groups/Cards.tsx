@@ -1,6 +1,6 @@
 import { Event, Group, User } from "@prisma/client";
 
-import Divider from "../misc/Divider";
+import InviteToGroupButton from "./InviteToGroupButton";
 import Link from "next/link";
 import { slugify } from "../../utils/slugify";
 import { useRouter } from "next/router";
@@ -13,6 +13,7 @@ const num_events = 32;
 
 type GroupCardPropTypes = {
   group: Group;
+  isOwner: boolean;
 };
 
 type SelfGroupCardPropTypes = {
@@ -27,6 +28,7 @@ type PickCardPropTypes = {
     xp_count: number;
   };
   cardHref: string;
+  PropsButton?: () => JSX.Element;
 };
 
 type EventCardPropTypes = {
@@ -82,33 +84,46 @@ const MemberCard = ({ user, rank }: MemberCardPropTypes) => {
   );
 };
 
-const PickCard = ({ content, cardHref }: PickCardPropTypes) => {
+const PickCard = ({ content, cardHref, PropsButton }: PickCardPropTypes) => {
   return (
-    <Link href={cardHref}>
-      <div className="mb-6 flex w-full cursor-pointer items-center justify-center  rounded-md border-2 border-neutral-400 bg-neutral-300 py-4 px-4 transition-all duration-200 hover:pl-7">
-        {/* LEFT SIDE */}
-        <div className="flex w-max flex-grow flex-col justify-start">
-          <h3 className="pb-1 text-2xl font-semibold text-neutral-800">
+    <div className="mb-6 flex w-full  items-center justify-center  rounded-md border-2 border-neutral-400 bg-neutral-300 py-4 px-4 transition-all duration-200 hover:pl-7">
+      {/* LEFT SIDE */}
+      <div className="flex w-max flex-grow flex-col justify-start">
+        <Link href={cardHref}>
+          <h3 className=" w-fit cursor-pointer py-1 text-2xl font-semibold text-neutral-800 hover:underline">
             {content.title}
           </h3>
-          <p>{content.num_events} Events Picked</p>
-          <p>{content.numMembers} Members</p>
-        </div>
-        {/* RIGHT SIDE */}
-        <div className="flex h-max w-fit justify-start">
-          <div className=" w-auto rounded-md bg-blue-600 px-1 py-1">{`${xp_count} XP`}</div>
-        </div>
+        </Link>
+        <p>{content.num_events} Events Picked</p>
+        <p>{content.numMembers} Members</p>
       </div>
-    </Link>
+      {/* RIGHT SIDE */}
+      <div className="flex h-full w-auto flex-col items-start justify-end self-stretch  ">
+        {PropsButton && <PropsButton />}
+        {/* Punt on XP FOR NOW */}
+        {/* <div className=" w-auto rounded-md bg-blue-600 px-1 py-1">{`${xp_count} XP`}</div> */}
+      </div>
+    </div>
   );
 };
 
-const GroupCard = ({ group }: GroupCardPropTypes) => {
-  const cardHref = `/groups/${slugify(group.title)}`;
+const GroupCard = ({ group, isOwner }: GroupCardPropTypes) => {
+  const cardHref = `/groups/${group.slug}`;
+
+  const HomePageInviteToGroupButton = () => (
+    <InviteToGroupButton
+      isOwnerOfGroup={isOwner}
+      disabled={false}
+      groupSlug={group.slug}
+      // className="mb-2"
+    />
+  );
+
   return (
     <PickCard
       content={{ ...group, num_events, xp_count }}
       cardHref={cardHref}
+      PropsButton={HomePageInviteToGroupButton}
     />
   );
 };
